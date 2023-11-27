@@ -96,18 +96,6 @@ class Program
         }
         Directory.CreateDirectory(temp);
 
-        string hekateZip = await GetGitHubRelease("CTCaer", "Hekate", @"hekate_ctcaer_.*.zip");
-        string atmosphereZip = await GetGitHubRelease("Atmosphere-NX", "Atmosphere", @"atmosphere-.*-master-.*\+hbl-.*\+hbmenu-.*.zip");
-        string jksvFilename = await GetGitHubRelease("J-D-K", "JKSV", "JKSV.nro");
-        string ftdpFilename = await GetGitHubRelease("mtheall", "ftpd", "ftpd.nro");
-        string themesInstallerFilename = await GetGitHubRelease("exelix11", "SwitchThemeInjector", "NXThemesInstaller.nro");
-        string shellFilename = await GetGitHubRelease("joel16", "NX-Shell", "NX-Shell.nro");
-        string appStoreFilename = await GetGitHubRelease("fortheusers", "hb-appstore", "appstore.nro");
-        string usbBotZip = await GetGitHubRelease("zyro670", "usb-botbase", "usb-botbaseZ.zip");
-        string lockPickFilename = await GetVpsRelease("https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/latest", "Lockpick_RCM.bin");
-        string hekateConfigFilename = await GetFile("https://nh-server.github.io/switch-guide/files/sys/hekate_ipl.ini", "hekate_ipl.ini");
-        string bootLogoZip = await GetFile("https://nh-server.github.io/switch-guide/files/bootlogos.zip", "bootlogos.zip");
-
         string root = "CFW Switch";
         if (Directory.Exists(root))
         {
@@ -116,43 +104,53 @@ class Program
         Directory.CreateDirectory(root);
 
         //1. Insert your Switch's SD card into your PC
-        
+
         //2. Copy the contents of the Atmosphere .zip file to the root of your SD card
         {
-            string unzipPath = UnzipFile(atmosphereZip);
+            string zipPath = await GetGitHubRelease("Atmosphere-NX", "Atmosphere", @"atmosphere-.*-master-.*\+hbl-.*\+hbmenu-.*.zip");
+            string unzipPath = UnzipFile(zipPath);
             CopyDirectory(unzipPath, root);
         }
 
         //3. Copy the bootloader folder from the Hekate .zip file to the root of your SD card
         {
-            string unzipPath = UnzipFile(hekateZip);
+            string zipPath = await GetGitHubRelease("CTCaer", "Hekate", @"hekate_ctcaer_.*.zip");
+            string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your SD card
         {
-            string unzipPath = UnzipFile(bootLogoZip);
+            string zipPath = await GetFile("https://nh-server.github.io/switch-guide/files/bootlogos.zip", "bootlogos.zip");
+            string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
         }
 
         //5. Copy hekate_ipl.ini to the bootloader folder on your SD card
         {
+            string hekateConfigFilename = await GetFile("https://nh-server.github.io/switch-guide/files/sys/hekate_ipl.ini", "hekate_ipl.ini");
             CopyFile(hekateConfigFilename, Path.Combine(root, "bootloader"));
         }
 
         //6. Copy Lockpick_RCM.bin to the /bootloader/payloads folder on your SD card
         {
+            string lockPickFilename = await GetVpsRelease("https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/latest", "Lockpick_RCM.bin");
             CopyFile(lockPickFilename, Path.Combine(root, "bootloader", "payloads"));
         }
 
         //7. Create a folder named appstore inside the switch folder on your SD card, and put appstore.nro in it
         {
+            string appStoreFilename = await GetGitHubRelease("fortheusers", "hb-appstore", "appstore.nro");
             Directory.CreateDirectory(Path.Combine(root, "switch", "appstore"));
             CopyFile(appStoreFilename, Path.Combine(root, "switch", "appstore"));
         }
 
         //8. Copy JKSV.nro, ftpd.nro, NX-Shell.nro and NxThemesInstaller.nro to the switch folder on your SD card
         {
+            string jksvFilename = await GetGitHubRelease("J-D-K", "JKSV", "JKSV.nro");
+            string ftdpFilename = await GetGitHubRelease("mtheall", "ftpd", "ftpd.nro");
+            string themesInstallerFilename = await GetGitHubRelease("exelix11", "SwitchThemeInjector", "NXThemesInstaller.nro");
+            string shellFilename = await GetGitHubRelease("joel16", "NX-Shell", "NX-Shell.nro");
             CopyFile(jksvFilename, Path.Combine(root, "switch"));
             CopyFile(ftdpFilename, Path.Combine(root, "switch"));
             CopyFile(themesInstallerFilename, Path.Combine(root, "switch"));
@@ -161,7 +159,8 @@ class Program
 
         // Custom step add usb bot base
         {
-            string unzipPath = UnzipFile(usbBotZip);
+            string zipPath = await GetGitHubRelease("zyro670", "usb-botbase", "usb-botbaseZ.zip");
+            string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "usb-botbaseZ"), Path.Combine(root, "atmosphere", "contents"));
         }
 
