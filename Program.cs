@@ -1,6 +1,5 @@
 ﻿using Octokit;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
@@ -8,9 +7,8 @@ class Program
 {
     async static Task<string> GetGitHubRelease(string repositoryOwner, string repositoryName, string folderName, string regexAsset)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+        Stopwatch watch = Stopwatch.StartNew();
 
-        HttpClient httpClient = new();
         GitHubClient gitHubClient = new(new ProductHeaderValue("CFWSetuper"));
 
         Release release = await gitHubClient.Repository.Release.GetLatest(repositoryOwner, repositoryName);
@@ -18,10 +16,11 @@ class Program
         {
             if (Regex.IsMatch(releaseAsset.Name, regexAsset))
             {
+                HttpClient httpClient = new();
                 byte[] content = await httpClient.GetByteArrayAsync($"https://github.com/{repositoryOwner}/{repositoryName}/releases/download/{release.TagName}/{releaseAsset.Name}");
                 string outputFile = Path.Combine(folderName, releaseAsset.Name);
                 File.WriteAllBytes(outputFile, content);
-                Console.WriteLine($"Downloaded {outputFile} from https://github.com/{repositoryOwner}/{repositoryName} in {watch.ElapsedMilliseconds}ms");
+                Console.WriteLine($"Downloaded {releaseAsset.Name} in {watch.ElapsedMilliseconds}ms");
                 return outputFile;
             }
         }
@@ -31,46 +30,44 @@ class Program
 
     async static Task<string> GetFile(string link, string folderName, string filename)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+        Stopwatch watch = Stopwatch.StartNew();
         HttpClient httpClient = new();
         byte[] content = await httpClient.GetByteArrayAsync(link);
         string outputFile = Path.Combine(folderName, filename);
         File.WriteAllBytes(outputFile, content);
-        Console.WriteLine($"Downloaded {outputFile} from {link} in {watch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"Downloaded {filename} from {link} in {watch.ElapsedMilliseconds}ms");
         return outputFile;
     }
 
     async static Task<string> GetVpsRelease(string link, string folderName, string filename)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+        Stopwatch watch = Stopwatch.StartNew();
         HttpClient httpClient = new();
-        HttpResponseMessage response = await httpClient.GetAsync(link, HttpCompletionOption.ResponseHeadersRead);
+        HttpResponseMessage response = await httpClient.GetAsync(link);
         string redirectedURL = response.RequestMessage.RequestUri.AbsoluteUri;
         int lastSlashIndex = redirectedURL.LastIndexOf('/');
         string latestVersion = redirectedURL.Substring(lastSlashIndex + 1);
         byte[] content = await httpClient.GetByteArrayAsync($"https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/download/{latestVersion}/{filename}");
         string outputFile = Path.Combine(folderName, filename);
         File.WriteAllBytes(outputFile, content);
-        Console.WriteLine($"Downloaded {outputFile} from {link} in {watch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"Downloaded {filename} from {link} in {watch.ElapsedMilliseconds}ms");
         return outputFile;
     }
 
     static string UnzipFile(string filename)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-        string nameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
-        FileInfo file = new FileInfo(filename);
-        string unzipDestination = Path.Combine(file.DirectoryName, nameWithoutExtension);
+        Stopwatch watch = Stopwatch.StartNew();
+        string filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
+        string directory = Path.GetDirectoryName(filename);
+        string unzipDestination = Path.Combine(directory, filenameWithoutExtension);
         ZipFile.ExtractToDirectory(filename, unzipDestination);
-        Console.WriteLine($"Unziped {filename} to {unzipDestination} in {watch.ElapsedMilliseconds}ms");
+        Console.WriteLine($"Unziped {filename} in {watch.ElapsedMilliseconds}ms");
         return unzipDestination;
     }
 
-    static void CopyDirectory(string sourceDir, string destinationDir, bool recursive = true)
+    static void CopyDirectoryInternal(string sourceDir, string destinationDir)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
         var dir = new DirectoryInfo(sourceDir);
-        DirectoryInfo[] dirs = dir.GetDirectories();
         Directory.CreateDirectory(destinationDir);
         foreach (FileInfo file in dir.GetFiles())
         {
@@ -78,21 +75,27 @@ class Program
             file.CopyTo(targetFilePath);
         }
 
-        foreach (DirectoryInfo subDir in dirs)
+        foreach (DirectoryInfo subDir in dir.GetDirectories())
         {
             string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-            CopyDirectory(subDir.FullName, newDestinationDir, true);
+            CopyDirectoryInternal(subDir.FullName, newDestinationDir);
         }
+    }
+
+    static void CopyDirectory(string sourceDir, string destinationDir)
+    {
+        Stopwatch watch = Stopwatch.StartNew();
+        CopyDirectoryInternal(sourceDir, destinationDir);
         Console.WriteLine($"Copied {sourceDir} to {destinationDir} in {watch.ElapsedMilliseconds}ms");
     }
 
-    static void CopyFile(string sourceFile, string destinationDir)
+    static void CopyFile(string sourceFilePath, string destinationDirectory)
     {
-        Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-        FileInfo file = new FileInfo(sourceFile);
-        string destinationFile = Path.Combine(destinationDir, file.Name);
-        File.Copy(sourceFile, destinationFile);
-        Console.WriteLine($"Copied {sourceFile} to {destinationFile} in {watch.ElapsedMilliseconds}ms");
+        Stopwatch watch = Stopwatch.StartNew();
+        string filename = Path.GetFileName(sourceFilePath);
+        string destinationFilePath = Path.Combine(destinationDirectory, filename);
+        File.Copy(sourceFilePath, destinationFilePath);
+        Console.WriteLine($"Copied {sourceFilePath} to {destinationDirectory} in {watch.ElapsedMilliseconds}ms");
     }
 
     async static Task Main()
