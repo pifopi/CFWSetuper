@@ -5,6 +5,16 @@ using System.Text.RegularExpressions;
 
 class Program
 {
+    static string WipeDirectory(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path, true);
+        }
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
     async static Task<string> GetGitHubRelease(string repositoryOwner, string repositoryName, string folderName, string regexAsset)
     {
         Stopwatch watch = Stopwatch.StartNew();
@@ -100,19 +110,9 @@ class Program
 
     async static Task Main()
     {
-        string temp = "temp";
-        if (Directory.Exists(temp))
-        {
-            Directory.Delete(temp, true);
-        }
-        Directory.CreateDirectory(temp);
-
-        string root = "CFW Switch";
-        if (Directory.Exists(root))
-        {
-            Directory.Delete(root, true);
-        }
-        Directory.CreateDirectory(root);
+        string temp = WipeDirectory("temp");
+        string root = WipeDirectory("CFW Switch");
+        string hekateBin = WipeDirectory("hekate bin");
 
         //1. Insert your Switch's SD card into your PC
 
@@ -128,6 +128,8 @@ class Program
             string zipPath = await GetGitHubRelease("CTCaer", "Hekate", temp, @"hekate_ctcaer_.*.zip");
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
+
+            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.0.7.bin"), hekateBin);
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your SD card
