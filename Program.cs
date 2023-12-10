@@ -54,7 +54,7 @@ class Program
         Stopwatch watch = Stopwatch.StartNew();
         HttpClient httpClient = new();
         HttpResponseMessage response = await httpClient.GetAsync(link);
-        string redirectedURL = response.RequestMessage.RequestUri.AbsoluteUri;
+        string redirectedURL = response.RequestMessage!.RequestUri!.AbsoluteUri!;
         int lastSlashIndex = redirectedURL.LastIndexOf('/');
         string latestVersion = redirectedURL.Substring(lastSlashIndex + 1);
         byte[] content = await httpClient.GetByteArrayAsync($"https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/download/{latestVersion}/{filename}");
@@ -68,7 +68,7 @@ class Program
     {
         Stopwatch watch = Stopwatch.StartNew();
         string filenameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
-        string directory = Path.GetDirectoryName(filename);
+        string directory = Path.GetDirectoryName(filename)!;
         string unzipDestination = Path.Combine(directory, filenameWithoutExtension);
         ZipFile.ExtractToDirectory(filename, unzipDestination);
         Console.WriteLine($"Unziped {filename} in {watch.ElapsedMilliseconds}ms");
