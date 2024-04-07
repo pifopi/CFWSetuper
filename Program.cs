@@ -49,21 +49,6 @@ class Program
         return outputFile;
     }
 
-    async static Task<string> GetVpsRelease(string link, string folderName, string filename)
-    {
-        Stopwatch watch = Stopwatch.StartNew();
-        HttpClient httpClient = new();
-        HttpResponseMessage response = await httpClient.GetAsync(link);
-        string redirectedURL = response.RequestMessage!.RequestUri!.AbsoluteUri!;
-        int lastSlashIndex = redirectedURL.LastIndexOf('/');
-        string latestVersion = redirectedURL.Substring(lastSlashIndex + 1);
-        byte[] content = await httpClient.GetByteArrayAsync($"https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/download/{latestVersion}/{filename}");
-        string outputFile = Path.Combine(folderName, filename);
-        File.WriteAllBytes(outputFile, content);
-        Console.WriteLine($"Downloaded {filename} from {link} in {watch.ElapsedMilliseconds}ms");
-        return outputFile;
-    }
-
     static string UnzipFile(string filename)
     {
         Stopwatch watch = Stopwatch.StartNew();
@@ -129,7 +114,7 @@ class Program
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
 
-            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.0.7.bin"), hekateBin);
+            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.1.1.bin"), hekateBin);
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your SD card
@@ -145,20 +130,14 @@ class Program
             CopyFile(hekateConfigFilename, Path.Combine(root, "bootloader"));
         }
 
-        //6. Copy Lockpick_RCM.bin to the /bootloader/payloads folder on your SD card
-        {
-            string lockPickFilename = await GetVpsRelease("https://vps.suchmeme.nl/git/mudkip/Lockpick_RCM/releases/latest", temp, "Lockpick_RCM.bin");
-            CopyFile(lockPickFilename, Path.Combine(root, "bootloader", "payloads"));
-        }
-
-        //7. Create a folder named appstore inside the switch folder on your SD card, and put appstore.nro in it
+        //6. Create a folder named appstore inside the switch folder on your SD card, and put appstore.nro in it
         {
             string appStoreFilename = await GetGitHubRelease("fortheusers", "hb-appstore", temp, "appstore.nro");
             Directory.CreateDirectory(Path.Combine(root, "switch", "appstore"));
             CopyFile(appStoreFilename, Path.Combine(root, "switch", "appstore"));
         }
 
-        //8. Copy JKSV.nro, ftpd.nro, NX-Shell.nro and NxThemesInstaller.nro to the switch folder on your SD card
+        //7. Copy JKSV.nro, ftpd.nro, NX-Shell.nro and NxThemesInstaller.nro to the switch folder on your SD card
         {
             string jksvFilename = await GetGitHubRelease("J-D-K", "JKSV", temp, "JKSV.nro");
             string ftdpFilename = await GetGitHubRelease("mtheall", "ftpd", temp, "ftpd.nro");
