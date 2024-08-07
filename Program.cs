@@ -114,7 +114,7 @@ class Program
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
 
-            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.1.1.bin"), hekateBin);
+            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.2.1.bin"), hekateBin);
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your SD card
