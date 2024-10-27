@@ -99,54 +99,54 @@ class Program
         string root = WipeDirectory("CFW Switch");
         string hekateBin = WipeDirectory("hekate bin");
 
-        //1. Insert your Switch's SD card into your PC
+        //Using instructions from the link below. Beware, this is working only for full release of Atmosphère and *NOT* pre-release
+        //https://switch.hacks.guide/user_guide/all/sd_preparation/
+        //1. Navigate to the accessible drive.
 
-        //2. Copy the contents of the Atmosphere .zip file to the root of your SD card
+        //2. Copy the contents of the Atmosphère.zip file to the root of your microSD card.
         {
             string zipPath = await GetGitHubRelease("Atmosphere-NX", "Atmosphere", temp, @"atmosphere-.*-master-.*\+hbl-.*\+hbmenu-.*.zip");
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(unzipPath, root);
         }
 
-        //3. Copy the bootloader folder from the Hekate .zip file to the root of your SD card
+        //3. Copy the bootloader folder from the Hekate .zip file to the root of your microSD card.
         {
             string zipPath = await GetGitHubRelease("CTCaer", "Hekate", temp, @"hekate_ctcaer_.*.zip");
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
 
-            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.2.1.bin"), hekateBin);
+            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.2.2.bin"), hekateBin);
         }
 
-        //4. Copy the bootloader folder from the bootlogos.zip file to the root of your SD card
+        //4. Copy the bootloader folder from the bootlogos.zip file to the root of your microSD card.
         {
             string zipPath = await GetFile("https://nh-server.github.io/switch-guide/files/bootlogos.zip", temp, "bootlogos.zip");
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
         }
 
-        //5. Copy hekate_ipl.ini to the bootloader folder on your SD card
+        //5. Copy hekate_ipl.ini to the bootloader folder on your microSD card.
         {
-            string hekateConfigFilename = await GetFile("https://nh-server.github.io/switch-guide/files/sys/hekate_ipl.ini", temp, "hekate_ipl.ini");
+            string hekateConfigFilename = await GetFile("https://switch.hacks.guide/files/emu/hekate_ipl.ini", temp, "hekate_ipl.ini");
             CopyFile(hekateConfigFilename, Path.Combine(root, "bootloader"));
         }
 
-        //6. Create a folder named appstore inside the switch folder on your SD card, and put appstore.nro in it
-        {
-            string appStoreFilename = await GetGitHubRelease("fortheusers", "hb-appstore", temp, "appstore.nro");
-            Directory.CreateDirectory(Path.Combine(root, "switch", "appstore"));
-            CopyFile(appStoreFilename, Path.Combine(root, "switch", "appstore"));
-        }
+        //6. Create a folder named hosts inside the atmosphere folder on your microSD card, and put emummc.txt inside of the hosts folder.
+        // Skipped because I'm not doing emuMMC
 
-        //7. Copy JKSV.nro, ftpd.nro, NX-Shell.nro and NxThemesInstaller.nro to the switch folder on your SD card
+        //7. Copy JKSV.nro, ftpd.nro, NxThemesInstaller.nro, NX-Shell.nro and Goldleaf.nro to the switch folder on your microSD card.
         {
             string jksvFilename = await GetGitHubRelease("J-D-K", "JKSV", temp, "JKSV.nro");
             string ftdpFilename = await GetGitHubRelease("mtheall", "ftpd", temp, "ftpd.nro");
             string themesInstallerFilename = await GetGitHubRelease("exelix11", "SwitchThemeInjector", temp, "NXThemesInstaller.nro");
             string shellFilename = await GetGitHubRelease("joel16", "NX-Shell", temp, "NX-Shell.nro");
+            string goldLeafFilename = await GetGitHubRelease("XorTroll", "Goldleaf", temp, "Goldleaf.nro");
             CopyFile(jksvFilename, Path.Combine(root, "switch"));
             CopyFile(ftdpFilename, Path.Combine(root, "switch"));
             CopyFile(themesInstallerFilename, Path.Combine(root, "switch"));
             CopyFile(shellFilename, Path.Combine(root, "switch"));
+            CopyFile(goldLeafFilename, Path.Combine(root, "switch"));
         }
 
         // Custom step add usb bot base
