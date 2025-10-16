@@ -100,7 +100,7 @@ class Program
         string hekateBin = WipeDirectory("hekate bin");
 
         //Using instructions from the link below. Beware, this is working only for full release of Atmosphère and *NOT* pre-release
-        //https://switch.hacks.guide/user_guide/all/sd_preparation/
+        //https://switch.hacks.guide/user_guide/all/sd_preparation.html
         //1. Navigate to the accessible drive.
 
         //2. Copy the contents of the Atmosphère.zip file to the root of your microSD card.
@@ -110,13 +110,13 @@ class Program
             CopyDirectory(unzipPath, root);
         }
 
-        //3. Copy the bootloader folder from the Hekate .zip file to the root of your microSD card.
+        //3. Copy the bootloader folder from the hekate .zip file to the root of your microSD card.
         {
             string zipPath = await GetGitHubRelease("CTCaer", "Hekate", temp, @"hekate_ctcaer_.*.zip");
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
 
-            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.2.2.bin"), hekateBin);
+            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.3.1.bin"), hekateBin);
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your microSD card.
