@@ -24,14 +24,9 @@ jobs:
       if: matrix.configuration == 'Release'
       with:
         name: CFW Switch
-        path: bin\Release\net9.0\CFW Switch
+        path: CFW Switch
     - uses: actions/upload-artifact@v4
       if: matrix.configuration == 'Release'
       with:
         name: hekate bin
-        path: bin\Release\net9.0\hekate bin
-    - uses: actions/upload-artifact@v4
-      if: matrix.configuration == 'Release'
-      with:
-        name: aa
-        path: .
+        path: hekate bin
