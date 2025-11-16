@@ -1,5 +1,7 @@
 ﻿using Octokit;
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
@@ -116,7 +118,11 @@ class Program
             string unzipPath = UnzipFile(zipPath);
             CopyDirectory(Path.Combine(unzipPath, "bootloader"), Path.Combine(root, "bootloader"));
 
-            CopyFile(Path.Combine(unzipPath, "hekate_ctcaer_6.4.1.bin"), hekateBin);
+            string pattern = "hekate_ctcaer_*.bin";
+            string[] files = Directory.GetFiles(unzipPath, pattern);
+            Debug.Assert(files.Length == 1);
+            string fileName = Path.GetFileName(files[0]);
+            CopyFile(Path.Combine(unzipPath, fileName), hekateBin);
         }
 
         //4. Copy the bootloader folder from the bootlogos.zip file to the root of your microSD card.
