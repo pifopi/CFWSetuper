@@ -1,0 +1,37 @@
+name: C# CI
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: microsoft/setup-msbuild@v2
+    - name: Generate binaries
+      run: |
+        dotnet restore CFWSetuper.sln /p:Configuration=${{ matrix.configuration }} /p:Platform="Any CPU"
+        MSBuild.exe CFWSetuper.csproj /p:Configuration=${{ matrix.configuration }}
+    - name : Generate artifact
+      if: matrix.configuration == 'Release'
+      run: |
+        bin\Release\net9.0\CFWSetuper.exe
+    - uses: actions/upload-artifact@v4
+      if: matrix.configuration == 'Release'
+      with:
+        name: CFW Switch
+        path: bin\Release\net9.0\CFW Switch
+    - uses: actions/upload-artifact@v4
+      if: matrix.configuration == 'Release'
+      with:
+        name: hekate bin
+        path: bin\Release\net9.0\hekate bin
+    - uses: actions/upload-artifact@v4
+      if: matrix.configuration == 'Release'
+      with:
+        name: aa
+        path: .
