@@ -155,9 +155,9 @@ class Program
 
         // Custom step add usb bot base
         {
-            string zipPath = await GetGitHubRelease("zyro670", "usb-botbase", temp, "usb-botbaseZ.zip");
+            string zipPath = await GetGitHubRelease("zyro670", "usb-botbase", temp, "usb-botbase-3.0.zip");
             string unzipPath = UnzipFile(zipPath);
-            CopyDirectory(Path.Combine(unzipPath, "usb-botbaseZ"), Path.Combine(root, "atmosphere", "contents"));
+            CopyDirectory(Path.Combine(unzipPath, "usb-botbase-3.0"), Path.Combine(root, "atmosphere", "contents"));
         }
 
         //9. Reinsert your SD card back into your Switch
