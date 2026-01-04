@@ -4,7 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         configuration: [Debug, Release]
@@ -19,7 +19,7 @@ jobs:
     - name : Generate artifact
       if: matrix.configuration == 'Release'
       run: |
-        bin\Release\net9.0\CFWSetuper.exe
+        bin\Release\net10.0\CFWSetuper.exe
     - uses: actions/upload-artifact@v4
       if: matrix.configuration == 'Release'
       with:
