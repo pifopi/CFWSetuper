@@ -20,12 +20,12 @@ jobs:
       if: matrix.configuration == 'Release'
       run: |
         bin\Release\net10.0\CFWSetuper.exe
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: matrix.configuration == 'Release'
       with:
         name: CFW Switch
         path: CFW Switch
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: matrix.configuration == 'Release'
       with:
         name: hekate bin
