@@ -14,7 +14,7 @@ jobs:
     - uses: microsoft/setup-msbuild@v2
     - name: Generate binaries
       run: |
-        dotnet restore CFWSetuper.sln /p:Configuration=${{ matrix.configuration }} /p:Platform="Any CPU"
+        dotnet restore CFWSetuper.slnx /p:Configuration=${{ matrix.configuration }} /p:Platform="Any CPU"
         MSBuild.exe CFWSetuper.csproj /p:Configuration=${{ matrix.configuration }}
     - name : Generate artifact
       if: matrix.configuration == 'Release'
