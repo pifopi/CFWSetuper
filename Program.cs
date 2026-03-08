@@ -26,7 +26,7 @@ class Program
         {
             if (Regex.IsMatch(releaseAsset.Name, regexAsset))
             {
-                HttpClient httpClient = new();
+                using HttpClient httpClient = new();
                 byte[] content = await httpClient.GetByteArrayAsync($"https://github.com/{repositoryOwner}/{repositoryName}/releases/download/{release.TagName}/{releaseAsset.Name}");
                 string outputFile = Path.Combine(folderName, releaseAsset.Name);
                 File.WriteAllBytes(outputFile, content);
@@ -41,7 +41,7 @@ class Program
     async static Task<string> GetFile(string link, string folderName, string filename)
     {
         Stopwatch watch = Stopwatch.StartNew();
-        HttpClient httpClient = new();
+        using HttpClient httpClient = new();
         byte[] content = await httpClient.GetByteArrayAsync(link);
         string outputFile = Path.Combine(folderName, filename);
         File.WriteAllBytes(outputFile, content);
